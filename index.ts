@@ -33,6 +33,28 @@ server.prompt("human-messages-prompts",
   } 
 );
 
+server.tool("human-messages-prompts",
+  "Generate a prompt for a human message",
+  {
+    platform: z.enum(["twitter", "discord", "telegram", "whatsapp", "email", "sms", "other"]),
+    message: z.string().optional()
+  },
+  async ({ platform, message }) => {
+    const prompt = await generatePrompt(platform);
+    const messagesUser = message ? [{
+         type: "text" as const, text: message 
+    }] : [];
+    return {
+      content: [
+        {
+          type: "text" as const,
+          text: "Assistant: " + prompt 
+        },
+        ...messagesUser
+      ]
+    }
+  }
+);
 
 // Start receiving messages on stdin and sending messages on stdout
 const transport = new StdioServerTransport();
